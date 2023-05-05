@@ -1,4 +1,4 @@
-package apirouter
+package common
 
 import (
 	"bytes"

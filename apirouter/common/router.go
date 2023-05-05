@@ -1,16 +1,18 @@
-package apirouter
+package common
 
 import (
 	"github.com/sirupsen/logrus"
+	"moratal/apirouter/util"
 	"strings"
 )
 
+// NewRouter 创建路由器
 func NewRouter(api string) (router *Router) {
 	router = newRouter()
 	if api != "" {
-
+		router.AddRouter(parseApi(api)...)
 	}
-	return router
+	return
 }
 
 type Router struct {
@@ -90,4 +92,19 @@ func (r *Router) sortRouters() {
 	for _, rootSegment := range r.roots {
 		rootSegment.sortChildren()
 	}
+}
+func parseApi(apiConf string) (apiList []ApiInfo) {
+	apiMapping := make(map[string]string)
+	if err := util.UnmarshalFromFile(&apiMapping, apiConf, ""); err != nil {
+		panic(err)
+	}
+	// eg:/api/users/getUserInfo    GET,POST
+	//为了解决method不同，但是pattern相同的问题，所以split methods
+	for pattern, methods := range apiMapping {
+		splitMethod := strings.Split(methods, ",")
+		for i := 0; i < len(splitMethod); i++ {
+			apiList = append(apiList, ApiInfo{Method: splitMethod[0], Pattern: pattern})
+		}
+	}
+	return
 }
