@@ -3,6 +3,8 @@ package handler
 import (
 	"fmt"
 	"moratal/apirouter/common"
+	"moratal/apirouter/service"
+	"net/http"
 )
 
 // 存储生成对应的方法
@@ -21,7 +23,7 @@ type RegisterApi struct {
 var apiRouter *common.Router
 var registerApi = []RegisterApi{
 	//各种路由及方法eg:
-	//{Method: http.MethodGet, Pattern: "/api/mortal/v1/new", Func: nil},
+	{Method: http.MethodGet, Pattern: "/api/mortal/v1/new", Func: service.NewMortal},
 }
 
 // MustRegisterApi 注册路由
