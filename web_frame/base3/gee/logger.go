@@ -12,6 +12,6 @@ func Logger() HandlerFunc {
 		//process request
 		ctx.Next()
 		// Calculate resolution time
-		log.Printf("[%d] %s in %v", ctx.StatusCode, ctx.Req.RequestURI, time.Since(now))
+		log.Printf("log [%d] %s in %v", ctx.StatusCode, ctx.Req.RequestURI, time.Since(now))
 	}
 }

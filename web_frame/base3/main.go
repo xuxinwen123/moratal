@@ -1,12 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"gee"
 	"log"
 	"net/http"
 	"time"
 )
 
+type Student struct {
+	Name string
+	Age  int
+}
+
+func FormatAsDate(t time.Time) string {
+	year, month, day := t.Date()
+	return fmt.Sprintf("%d-%02d-%02d", year, month, day)
+}
 func onlyForV2() gee.HandlerFunc {
 	return func(ctx *gee.Context) {
 		now := time.Now()
@@ -79,18 +89,55 @@ func main() {
 	//}
 	//r1.Run(":9999")
 	//############### version5
+	//r := gee.NewEngineGroup()
+	//r.Use(gee.Logger()) //global middleware
+	//r.GET("/", func(ctx *gee.Context) {
+	//	ctx.HTML(http.StatusOK, "<h1>Hello Gee</h1>")
+	//})
+	//v2 := r.Group("/v2")
+	//v2.Use(onlyForV2()) // v2 group middleware
+	//{
+	//	v2.GET("/hello/:name", func(ctx *gee.Context) {
+	//		// expect /hello/geektutu
+	//		ctx.String(http.StatusOK, "hello %s, you're at %s\n", ctx.Param("name"), ctx.Path)
+	//	})
+	//}
+	//r.Run(":9999")
+	//############template version6
+	//r := gee.NewEngineGroup()
+	//r.Use(gee.Logger())
+	//r.SetFuncMap(template.FuncMap{"FormatAsDate": FormatAsDate})
+	//r.LoadHTMLGlob("templates/*")
+	//r.Static("/assets", "./static")
+	//stu1 := &Student{Name: "xxw", Age: 26}
+	//stu2 := &Student{Name: "zzy", Age: 46}
+	//r.GET("/", func(ctx *gee.Context) {
+	//	ctx.HTMLTemplate(http.StatusOK, "css.tmpl", nil)
+	//})
+	//r.GET("/students", func(ctx *gee.Context) {
+	//	ctx.HTMLTemplate(http.StatusOK, "arr.tmpl", gee.H{
+	//		"title":  "gee",
+	//		"stuArr": [2]*Student{stu1, stu2},
+	//	})
+	//})
+	//r.GET("/date", func(ctx *gee.Context) {
+	//	ctx.HTMLTemplate(http.StatusOK, "custom_func.tmpl", gee.H{
+	//		"title": "gee",
+	//		"now":   time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC),
+	//	})
+	//})
+	//r.Run(":9999")
+	//####### 错误处理
 	r := gee.NewEngineGroup()
-	r.Use(gee.Logger()) //global middleware
+	middleware := make([]gee.HandlerFunc, 0)
+	middleware = append(middleware, gee.Recovery(), gee.Logger())
+	r.Use(middleware...)
 	r.GET("/", func(ctx *gee.Context) {
-		ctx.HTML(http.StatusOK, "<h1>Hello Gee</h1>")
+		ctx.String(http.StatusOK, "hello Geektutu\n")
 	})
-	v2 := r.Group("/v2")
-	v2.Use(onlyForV2()) // v2 group middleware
-	{
-		v2.GET("/hello/:name", func(ctx *gee.Context) {
-			// expect /hello/geektutu
-			ctx.String(http.StatusOK, "hello %s, you're at %s\n", ctx.Param("name"), ctx.Path)
-		})
-	}
+	r.GET("/panic", func(ctx *gee.Context) {
+		names := []string{"xxw"}
+		ctx.String(http.StatusOK, names[100])
+	})
 	r.Run(":9999")
 }
